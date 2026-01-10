@@ -9,7 +9,6 @@ const route = require("./route");
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
 dbConnection();
 app.use("/person", route)
 app.listen(port, () => {
