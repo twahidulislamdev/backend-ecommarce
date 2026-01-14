@@ -10,7 +10,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 dbConnection();
-app.use("/person", route)
+app.use("/user", route)
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });

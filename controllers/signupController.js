@@ -30,10 +30,9 @@ const signupController = (req, res) => {
     });
   }
 
-
-  if (!emailValidation) {
+  if (!emailValidation(email)) {
     return res.json({
-      message: "Error: Email formate is not Correct",
+      message: "Error: Email format is not Correct",
     });
   }
 
