@@ -47,7 +47,7 @@ const signupController = (req, res) => {
 
     users.save();
     res.json({
-      data: users,
+      messege: "Data Send",
     });
   });
 };
