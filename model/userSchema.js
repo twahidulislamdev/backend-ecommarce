@@ -1,3 +1,4 @@
+const e = require("express");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -21,6 +22,14 @@ const userSchema = new Schema({
   otp: {
     type: String,
   },
+  expireOtp: {
+    type: Date,
+  },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  }
+  
 });
 
 module.exports = mongoose.model("userList", userSchema);

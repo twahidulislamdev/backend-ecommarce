@@ -4,6 +4,8 @@ const emailValidation = require("../helpers/emailValidation");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const { log } = require("console");
+const emailVerification = require("../helpers/emailVerification");
 
 const signupController = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
@@ -55,16 +57,17 @@ const signupController = async (req, res) => {
   // First way using function Start
   // function generateOTP() {
   //   const otp = crypto.randomInt(100000, 999999).toString();
-  //   const expiresAt = Date.now() + 10 * 60 * 1000; // expires in 2 minutes
-  //   return { otp, expiresAt };
+  //   const expiresOTP = new Date(Date.now() + 10 * 60 * 1000);
+  //   return { otp, expiresOTP };
   // }
-  // const { otp, expiresAt } = generateOTP();
-  // console.log("Generated OTP:", otp, "Expires at:", new Date(expiresAt));
+  // const { otp, expiresOTP } = generateOTP();
+  // console.log("Generated OTP:", otp, "Expires at:", expiresOTP);
   // First way using function End
 
   // Second way without using function Start
   const otp = crypto.randomInt(100000, 999999).toString();
-  console.log(otp);
+  const expiresOtp = new Date(Date.now() + 5 * 60 * 1000);
+  console.log("Generated OTP:", otp, "Expires at:", expiresOtp);
   // Second way without using function End
 
   // ---------------Use crypto for send OTP End----------------
@@ -77,7 +80,9 @@ const signupController = async (req, res) => {
       password: hash,
       // otp: generateOTP(), // First Way Using Function
       otp, // Second Way Without Function
+      expireOtp: expiresOtp,
     });
+    emailVerification(email, otp);
     users.save();
     res.json({
       messege: "Data Send",
