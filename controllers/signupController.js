@@ -4,7 +4,7 @@ const emailValidation = require("../helpers/emailValidation");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const { log } = require("console");
+
 const emailVerification = require("../helpers/emailVerification");
 
 const signupController = async (req, res) => {
@@ -47,7 +47,7 @@ const signupController = async (req, res) => {
   const duplicateEmail = await userSchema.find({ email });
   if (duplicateEmail.length > 0) {
     return res.json({
-      message: "Error: Email Already Exists",
+      message: "Error: This Email Already Exists",
     });
   }
   //  Duplicate Email Check End
