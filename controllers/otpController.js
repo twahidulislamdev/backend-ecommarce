@@ -24,13 +24,13 @@ const otpController = async function (req, res) {
   });
 };
 
+//------------------- ResendOtpController Part Start Here ---------------------
 const resendOtpController = async (req, res) => {
   const { email } = req.body;
   const resendOtp = await userSchema.findOne({ email });
   if (!resendOtp) {
     return res.status(400).json({ message: "User Not Found" });
   }
-
   const otp = Math.floor(100000 + Math.random() * 900000);
   const expireOtp = Date.now() + 5 * 60 * 1000; // 5 minutes
 

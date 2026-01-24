@@ -63,6 +63,5 @@ const emailVerification = async (email, otp) => {
     </div>
   `,
   });
-  
 };
 module.exports = emailVerification;
