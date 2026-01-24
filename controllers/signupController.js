@@ -4,7 +4,6 @@ const emailValidation = require("../helpers/emailValidation");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-
 const emailVerification = require("../helpers/emailVerification");
 
 const signupController = async (req, res) => {
@@ -65,11 +64,11 @@ const signupController = async (req, res) => {
   // First way using function End
 
   // Second way without using function Start
-  const otp = crypto.randomInt(100000, 999999).toString();
+  // const otp = crypto.randomInt(100000, 999999).toString();
+  const otp = Math.floor(100000 + Math.random() * 900000);
   const expiresOtp = new Date(Date.now() + 5 * 60 * 1000);
   console.log("Generated OTP:", otp, "Expires at:", expiresOtp);
   // Second way without using function End
-
   // ---------------Use crypto for send OTP End----------------
 
   bcrypt.hash(password, 10, function (err, hash) {
