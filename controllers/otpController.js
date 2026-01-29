@@ -1,4 +1,6 @@
 const userSchema = require("../model/userSchema");
+const crypto = require("crypto");
+
 const otpController = async function (req, res) {
   const { email, otp } = req.body;
   const user = await userSchema.findOne({ email });
@@ -31,7 +33,9 @@ const resendOtpController = async (req, res) => {
   if (!resendOtp) {
     return res.status(400).json({ message: "User Not Found" });
   }
-  const otp = Math.floor(100000 + Math.random() * 900000);
+  // const otp = Math.floor(100000 + Math.random() * 900000);
+  
+  const otp = crypto.randomInt(100000, 999999).toString();
   const expireOtp = Date.now() + 5 * 60 * 1000; // 5 minutes
 
   resendOtp.otp = otp;

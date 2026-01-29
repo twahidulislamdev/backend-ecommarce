@@ -64,8 +64,9 @@ const signupController = async (req, res) => {
   // First way using function End
 
   // Second way without using function Start
-  // const otp = crypto.randomInt(100000, 999999).toString();
-  const otp = Math.floor(100000 + Math.random() * 900000);
+  // const otp = Math.floor(100000 + Math.random() * 900000);
+  
+  const otp = crypto.randomInt(100000, 999999).toString();
   const expiresOtp = new Date(Date.now() + 5 * 60 * 1000);
   console.log("Generated OTP:", otp, "Expires at:", expiresOtp);
   // Second way without using function End

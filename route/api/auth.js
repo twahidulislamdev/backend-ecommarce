@@ -4,13 +4,19 @@ const {
   otpController,
   resendOtpController,
 } = require("../../controllers/otpController");
-const loginController = require("../../controllers/loginController");
+const {
+  loginController,
+  logoutController,
+  dashboardController,
+} = require("../../controllers/loginController");
 const router = express.Router();
 
 router.post("/signup", signupController);
 router.post("/otpverify", otpController);
 router.post("/resendotp", resendOtpController);
 router.post("/login", loginController);
+router.post("/logout", logoutController);
+router.get("/dashboard", dashboardController);
 
 // router.get("/login", (req, res) => {
 //   res.send("Data Ache");

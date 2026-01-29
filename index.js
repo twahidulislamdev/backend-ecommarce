@@ -4,13 +4,30 @@ const app = express();
 const port = 3000;
 require("dotenv").config();
 const route = require("./route");
+const session = require("express-session");
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+// Use This for session management Start
+app.use(
+  session({
+    secret: "enmoon123",
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false },
+  }),
+);
+// Use this for session management End
+
+// Database Connection Start
 dbConnection();
+// Database Connection End
+
+// Routing Start
 app.use("/user", route);
+// Routing End
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
