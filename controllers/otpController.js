@@ -2,7 +2,8 @@ const emailVerification = require("../helpers/emailVerification");
 const userSchema = require("../model/userSchema");
 const crypto = require("crypto");
 
-const otpController = async function (req, res) {
+// ====================== firstOtpController Part Start Here =================
+const firstOtpController = async function (req, res) {
   const { email, otp } = req.body;
   const user = await userSchema.findOne({ email });
   if (!user) {
@@ -16,7 +17,7 @@ const otpController = async function (req, res) {
     });
   }
   if (user.otp !== otp || user.expireOtp < Date.now()) {
-    return res.status(400).json({ messes: "invalied otp" });
+    return res.status(400).json({ message: "Invalid OTP" });
   }
   user.isVerified = true;
   user.otp = undefined;
@@ -26,8 +27,9 @@ const otpController = async function (req, res) {
     message: "Email Verification Done",
   });
 };
+// ==================== firstOtpController Part End Here =================
 
-//------------------- ResendOtpController Part Start Here ---------------------
+//================= ResendOtpController Part Start Here =================
 const resendOtpController = async (req, res) => {
   const { email } = req.body;
   const resendOtp = await userSchema.findOne({ email });
@@ -37,14 +39,15 @@ const resendOtpController = async (req, res) => {
   // const otp = Math.floor(100000 + Math.random() * 900000);
   const otp = crypto.randomInt(100000, 999999).toString();
   const expireOtp = Date.now() + 5 * 60 * 1000; // 5 minutes
-
   resendOtp.otp = otp;
   resendOtp.expireOtp = expireOtp;
   await resendOtp.save();
   await emailVerification(email, otp, true);
   res.status(200).json({
-    message: "OTP Resent Successfully",
+    message: "OTP Resend Successfully",
   });
 };
+//=================ResendOtpController Part End Here =================
 
-module.exports = { otpController, resendOtpController };
+
+module.exports = { firstOtpController, resendOtpController };
