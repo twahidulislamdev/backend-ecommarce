@@ -4,54 +4,46 @@ const bcrypt = require("bcrypt");
 
 /* ======================= LOGIN CONTROLLER Start ======================= */
 const loginController = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    // Check email
-    if (!email) {
-      return res.json({ message: "Error: Email Required" });
-    }
-
-    // Check password
-    if (!password) {
-      return res.json({ message: "Error: Password Required" });
-    }
-
-    // Validate email format
-    if (!emailValidation(email)) {
-      return res.json({ message: "Error: Invalid Email Format" });
-    }
-
-    // Find user
-    const exestinguser = await userSchema.findOne({ email });
-    if (!exestinguser) {
-      return res.json({ message: "Error: User Not Found" });
-    }
-
-    // Check verification
-    if (!exestinguser.isVerified) {
-      return res.json({ message: "Error: User Not Verified" });
-    }
-
-    // Compare password
-    const matchPassword = await bcrypt.compare(password, exestinguser.password);
-    if (!matchPassword) {
-      return res.json({ message: "Error: Incorrect Password" });
-    }
-    // Create session
-    req.session.isAuth = true;
-    req.session.userSchema = {
-      id: exestinguser._id,
-      email: exestinguser.email,
-      firstName: exestinguser.firstName,
-    };
-    return res.json({
-      message: "Logged in Successfully",
-      // user: req.session.userSchema,
-    });
-  } catch (error) {
-    return res.json({ message: "Error: Login Failed" });
+  const { email, password } = req.body;
+  // Check email
+  if (!email) {
+    return res.json({ message: "Error: Email Required" });
   }
+  // Check password
+  if (!password) {
+    return res.json({ message: "Error: Password Required" });
+  }
+  // Validate email format
+  if (!emailValidation(email)) {
+    return res.json({ message: "Error: Invalid Email Format" });
+  }
+  // Find user
+  const existingUser = await userSchema.findOne({ email });
+  if (!existingUser) {
+    return res.json({ message: "Error: User Not Found" });
+  }
+  // Check verification
+  if (!existingUser.isVerified) {
+    return res.json({ message: "Error: User Not Verified" });
+  }
+  // Compare password
+  const matchPassword = await bcrypt.compare(password, existingUser.password);
+  if (!matchPassword) {
+    return res.json({ message: "Error: Incorrect Password" });
+  }
+
+  // Create session
+  req.session.isAuth = true;
+  req.session.userSchema = {
+    id: existingUser.id,
+    email: existingUser.email,
+    firstName: existingUser.firstName,
+    lastName: existingUser.lastName,
+  };
+  return res.json({
+    message: "Login in Successfully",
+    // user: req.session.userSchema,
+  });
 };
 /* ======================= LOGIN CONTROLLER End ======================= */
 

@@ -1,3 +1,4 @@
+const emailVerification = require("../helpers/emailVerification");
 const userSchema = require("../model/userSchema");
 const crypto = require("crypto");
 
@@ -34,17 +35,15 @@ const resendOtpController = async (req, res) => {
     return res.status(400).json({ message: "User Not Found" });
   }
   // const otp = Math.floor(100000 + Math.random() * 900000);
-  
   const otp = crypto.randomInt(100000, 999999).toString();
   const expireOtp = Date.now() + 5 * 60 * 1000; // 5 minutes
 
   resendOtp.otp = otp;
   resendOtp.expireOtp = expireOtp;
-
   await resendOtp.save();
+  await emailVerification(email, otp, true);
   res.status(200).json({
     message: "OTP Resent Successfully",
-    otp: otp,
   });
 };
 
