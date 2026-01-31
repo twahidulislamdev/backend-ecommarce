@@ -1,4 +1,6 @@
 const e = require("express");
+const express = require("express");
+const { Admin } = require("mongodb");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -28,6 +30,11 @@ const userSchema = new Schema({
   isVerified: {
     type: Boolean,
     default: false,
+  },
+  role: {
+    type: String,
+    default: "user",
+    enum: ["user", "admin"],
   },
 });
 

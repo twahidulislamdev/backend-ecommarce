@@ -1,0 +1,49 @@
+const categorySchema = require("../model/categorySchema");
+
+// =========== Create Category part start Here ===========
+const createCategory = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    if (!name || !description) {
+      return res.status(400).json({
+        success: false,
+        message: "Name and description are required.",
+      });
+    }
+    const existingCategory = await categorySchema.findOne({ name });
+    if (existingCategory) {
+      return res.status(409).json({
+        success: false,
+        message: "Category with this name already exists",
+      });
+    }
+    const createcategory = new categorySchema({
+      name,
+      description,
+    });
+    createcategory.save();
+    res.status(201).json({
+      success: true,
+      message: "Category created successfully",
+      createcategory,
+    });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Error creating category", error });
+  }
+};
+// =========== Create Category part End Here ===========
+
+// =========== Get All Category part start Here ===========
+const getAllCategory = async (req, res) => {
+  const allCategoryList = await categorySchema.find({});
+  res.status(200).json({
+    success: true,
+    message: "All categories retrieved successfully",
+    allCategoryList,
+  });
+};
+// =========== Get All Category part start Here ===========
+
+module.exports = { createCategory, getAllCategory };
