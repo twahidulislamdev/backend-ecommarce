@@ -33,7 +33,7 @@ const createCategory = async (req, res) => {
       .json({ success: false, message: "Error creating category", error });
   }
 };
-// =========== Create Category part End Here ===========
+// =========== Create Category part End Here ==============
 
 // =========== Get All Category part start Here ===========
 const getAllCategory = async (req, res) => {
@@ -46,4 +46,21 @@ const getAllCategory = async (req, res) => {
 };
 // =========== Get All Category part start Here ===========
 
-module.exports = { createCategory, getAllCategory };
+// ============= Update Category part start Here =============
+const updateCategory = async (req, res) => {
+  const { id } = req.params;
+  // console.log(id);
+  const { name, description } = req.body;
+  const updateCategory = await categorySchema.findOne({ _id: id });
+  updateCategory.name = name;
+  updateCategory.description = description;
+  await updateCategory.save();
+  res.status(200).json({
+    success: true,
+    message: "Category updated successfully",
+    updateCategory,
+  });
+};
+// ============= Update Category part End Here =============
+
+module.exports = { createCategory, getAllCategory, updateCategory };
