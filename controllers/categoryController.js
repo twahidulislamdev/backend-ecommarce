@@ -52,6 +52,12 @@ const updateCategory = async (req, res) => {
   // console.log(id);
   const { name, description } = req.body;
   const updateCategory = await categorySchema.findOne({ _id: id });
+  if (!updateCategory) {
+    return res.status(404).json({
+      success: false,
+      message: "Category not found",
+    });
+  }
   updateCategory.name = name;
   updateCategory.description = description;
   await updateCategory.save();
@@ -63,4 +69,31 @@ const updateCategory = async (req, res) => {
 };
 // ============= Update Category part End Here =============
 
-module.exports = { createCategory, getAllCategory, updateCategory };
+// ============= Delete Category part start Here =============
+const deleteCategory = async (req, res) => {
+  const { id } = req.params;
+  const deleteCategory = await categorySchema.findOneAndDelete({ _id: id });
+  if (!deleteCategory) {
+    return res.status(404).json({
+      success: false,
+      message: "Category not found",
+    });
+  }
+  res.status(200).json({
+    success: true,
+    message: "Category deleted successfully",
+    deleteCategory,
+  });
+};
+// ============= Delete Category part End Here =============
+
+// ============= DeleteAll Category part start Here =============
+
+
+
+module.exports = {
+  createCategory,
+  getAllCategory,
+  updateCategory,
+  deleteCategory,
+};
