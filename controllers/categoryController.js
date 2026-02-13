@@ -88,12 +88,28 @@ const deleteCategory = async (req, res) => {
 // ============= Delete Category part End Here =============
 
 // ============= DeleteAll Category part start Here =============
-
-
+const deleteAllCategory = async (req, res) => {
+  try {
+    const result = await categorySchema.deleteMany({});
+    res.status(200).json({
+      success: true,
+      message: "All categories deleted successfully",
+      result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error deleting categories",
+      error,
+    });
+  }
+};
+// ============= DeleteAll Category part End Here =============
 
 module.exports = {
   createCategory,
   getAllCategory,
   updateCategory,
   deleteCategory,
+  deleteAllCategory,
 };
