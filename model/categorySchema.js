@@ -2,14 +2,23 @@ const express = require("express");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const categorySchema = new Schema({
-  name: {
-    type: String,
-    trim: true,
+const categorySchema = new Schema(
+  {
+    name: {
+      type: String,
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    subCategories: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SubCategoryList",
+      },
+    ],
   },
-  description: {
-    type: String,
-    trim: true,
-  },
-});
+  { timestamps: true },
+);
 module.exports = mongoose.model("CategoryList", categorySchema);
