@@ -31,6 +31,9 @@ const productSchema = new Schema(
     category: {
       type: String,
     },
+    image:{
+      type: String,
+    }
     // variant: {
     //   type: String,
     // },
