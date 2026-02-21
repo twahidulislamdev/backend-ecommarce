@@ -3,23 +3,25 @@ const productSchema = require("../model/productSchema");
 
 // ====================== Product Creation Controller start Here ======================
 const createProduct = async (req, res) => {
-  const { name, description, price, size, color, category, ram, storage } =
-    req.body;
-  if (
-    !name ||
-    !description ||
-    !price ||
-    !size ||
-    !color ||
-    !category ||
-    !ram ||
-    !storage
-  ) {
+  const {
+    name,
+    description,
+    price,
+    size,
+    color,
+    category,
+    ram,
+    storage,
+    image,
+  } = req.body;
+
+  if (!name || !description || !price || !category) {
     return res.status(400).json({
       message:
-        "Error: All required fields (Name, Description, Price, Size, Color, Category, Ram, Storage) are Required",
+        "Error: All required fields (Name, Description, Price, Category) are Required",
     });
   }
+
   const existingProduct = await productSchema.findOne({ name });
   if (existingProduct) {
     return res.status(400).json({ message: "Error: Product Already Exists" });
@@ -33,6 +35,7 @@ const createProduct = async (req, res) => {
     category,
     ram,
     storage,
+    image: `http://localhost:3000/uploads/${req.file.filename}`,
   });
   await createNewProduct
     .save()

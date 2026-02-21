@@ -5,10 +5,13 @@ const port = 3000;
 require("dotenv").config();
 const route = require("./route");
 const session = require("express-session");
+const path = require("path");
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
+// Middleware for parsing JSON and URL-encoded data
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Use This for session management Start
 app.use(

@@ -34,9 +34,6 @@ const productSchema = new Schema(
     image:{
       type: String,
     }
-    // variant: {
-    //   type: String,
-    // },
   },
   {
     timestamps: true,

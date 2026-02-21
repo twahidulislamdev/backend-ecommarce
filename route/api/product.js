@@ -1,6 +1,5 @@
 const express = require("express");
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
 const {
   createProduct,
   getAllProducts,
@@ -11,8 +10,25 @@ const {
 const router = express.Router();
 router.use(express.json());
 
-router.post("/createproduct", upload.single("avatar"), createProduct);
-router.post("/getallproducts", getAllProducts);
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "./uploads");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname +
+        "-" +
+        uniqueSuffix +
+        "." +
+        file.originalname.split(".")[1],
+    );
+  },
+});
+const upload = multer({ storage: storage });
+router.post("/createproduct", upload.single("image"), createProduct);
+router.get("/getallproducts", getAllProducts);
 router.put("/updateproduct/:id", updateProduct);
 router.delete("/deletesingleproduct/:id", deleteSingleProduct);
 router.delete("/deleteallproducts", deleteAllProducts);
