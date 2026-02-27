@@ -1,5 +1,7 @@
 const express = require("express");
 const productSchema = require("../model/productSchema");
+const { uploadToCloudinary } = require("../middleware/cloudinary");
+const uploadImage = require("../middleware/cloudinary");
 
 // ====================== Product Creation Controller start Here ======================
 const createProduct = async (req, res) => {
@@ -14,18 +16,24 @@ const createProduct = async (req, res) => {
     storage,
     image,
   } = req.body;
-
+  // Validate required fields
   if (!name || !description || !price || !category) {
     return res.status(400).json({
       message:
         "Error: All required fields (Name, Description, Price, Category) are Required",
     });
   }
-
+  // Check if a product with the same name already exists
   const existingProduct = await productSchema.findOne({ name });
   if (existingProduct) {
     return res.status(400).json({ message: "Error: Product Already Exists" });
   }
+
+  // Upload the image to Cloudinary and get the URL
+  const imgPath = req.file.path;
+  const imgUrl = await uploadImage(imgPath);
+
+  // Create a new product document with the provided data and the image URL
   const createNewProduct = new productSchema({
     name,
     description,
@@ -35,7 +43,7 @@ const createProduct = async (req, res) => {
     category,
     ram,
     storage,
-    image: `http://localhost:3000/uploads/${req.file.filename}`,
+    image: imgUrl.secure_url,
   });
   await createNewProduct
     .save()

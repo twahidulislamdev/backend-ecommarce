@@ -1,3 +1,4 @@
+require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"]);
 const express = require("express");
 const dbConnection = require("./database/dbConnection");
 const app = express();
@@ -11,7 +12,7 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 // Middleware for parsing JSON and URL-encoded data
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Use This for session management Start
 app.use(
