@@ -17,10 +17,18 @@ const productSchema = new Schema(
       required: true,
     },
     // arrays to store variants selected by the user
-    colors: {
-      type: [String],
-      default: [],
-    },
+    colors: [
+      {
+        name: {
+          type: String,
+          trim: true,
+        },
+        hex: {
+          type: String,
+          trim: true,
+        },
+      },
+    ],
     sizes: {
       type: [String],
       default: [],
@@ -45,9 +53,9 @@ const productSchema = new Schema(
     category: {
       type: String,
     },
-    image:{
+    image: {
       type: String,
-    }
+    },
   },
   {
     timestamps: true,
