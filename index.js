@@ -16,7 +16,7 @@ app.use(
       "http://localhost:5174",
       "http://localhost:5000",
       "https://prime-store-public.vercel.app",
-      "https://buy-goo-dashboard.vercel.app/login",
+      "https://buy-goo-dashboard.vercel.app",
     ],
     credentials: true,
   }),
