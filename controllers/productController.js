@@ -17,7 +17,8 @@ const createProduct = async (req, res) => {
     status,
     category,
   } = req.body;
-  // Validate required fields
+
+  // Validate Required Fields
   if (!name || !description || !price || !category) {
     return res.status(400).json({
       message:
@@ -25,18 +26,16 @@ const createProduct = async (req, res) => {
     });
   }
 
-  // Check if a product with the same name already exists
+  // Check If A Product With The Same Name Already Exists
   const existingProduct = await productSchema.findOne({ name });
-
   if (existingProduct) {
     return res.status(400).json({
       message: "Error: Product Already Exists",
     });
   }
 
-  // upload the image to Cloudinary and get the URL if provided
+  // ======== Upload The Image To Cloudinary =============
   let imgUrl;
-
   if (req.file) {
     const imgPath = req.file.path;
     imgUrl = await uploadImage(imgPath);
@@ -44,10 +43,8 @@ const createProduct = async (req, res) => {
 
   // ================= COLORS PARSE START =================
   let parsedColors = [];
-
   try {
     const parsed = colors ? JSON.parse(colors) : [];
-
     parsedColors = Array.isArray(parsed)
       ? parsed.map((color) => ({
           name: color.name || "",
@@ -61,7 +58,6 @@ const createProduct = async (req, res) => {
 
   // ================= SIZES PARSE START =================
   let parsedSizes = [];
-
   try {
     parsedSizes = sizes ? JSON.parse(sizes) : [];
   } catch (e) {
@@ -101,7 +97,7 @@ const createProduct = async (req, res) => {
 };
 // ====================== Product Creation Controller End Here ======================
 
-// ====================== GetAll Product Controller Start Here ========================
+// ====================== GetAll Product Controller Start Here ======================
 const getAllProducts = async (req, res) => {
   try {
     const products = await productSchema.find({});
@@ -119,11 +115,10 @@ const getAllProducts = async (req, res) => {
 };
 // ====================== GetAll Product Controller End Here ========================
 
-// ====================== Update Product Controller Start Here ========================
+// ====================== Update Product Controller Start Here ======================
 const updateProduct = async (req, res) => {
   const { id } = req.params;
-
-  // body may be undefined if middleware not applied; default to empty object
+  // Extract Fields From Request Body, Providing Default Values To Avoid Undefined
   const {
     name,
     description,
@@ -140,10 +135,8 @@ const updateProduct = async (req, res) => {
   try {
     // ================= COLORS PARSE START =================
     let parsedColors = [];
-
     try {
       const parsed = colors ? JSON.parse(colors) : [];
-
       parsedColors = Array.isArray(parsed)
         ? parsed.map((color) => ({
             name: color.name || "",
@@ -157,7 +150,6 @@ const updateProduct = async (req, res) => {
 
     // ================= SIZES PARSE START =================
     let parsedSizes = [];
-
     try {
       parsedSizes = sizes ? JSON.parse(sizes) : [];
     } catch (e) {
