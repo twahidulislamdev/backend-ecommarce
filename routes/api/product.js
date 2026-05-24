@@ -28,9 +28,9 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+
 router.post("/createproduct", upload.single("image"), createProduct);
 router.get("/getallproducts", getAllProducts);
-// use patch for updates since frontend now sends patch and also need multer to process file
 router.patch("/updateproduct/:id", upload.single("image"), updateProduct);
 router.delete("/deletesingleproduct/:id", deleteSingleProduct);
 router.delete("/deleteallproducts", deleteAllProducts);

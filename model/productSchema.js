@@ -16,7 +16,6 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
-    // arrays to store variants selected by the user
     colors: [
       {
         name: {
@@ -56,6 +55,16 @@ const productSchema = new Schema(
     image: {
       type: String,
     },
+    badge: {
+      type: String,
+      trim: true,
+    },
+    tags: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
   },
   {
     timestamps: true,

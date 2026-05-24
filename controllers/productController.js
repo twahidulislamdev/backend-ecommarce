@@ -13,9 +13,11 @@ const createProduct = async (req, res) => {
     sizes,
     ram,
     storage,
+    category,
+    tags,
+    badge,
     stock,
     status,
-    category,
   } = req.body;
 
   // Validate Required Fields
@@ -65,7 +67,7 @@ const createProduct = async (req, res) => {
   }
   // ================= SIZES PARSE END =================
 
-  // Create a new product document with the provided data and the image URL
+  // Create a new product 
   const createNewProduct = new productSchema({
     name,
     description,
@@ -78,6 +80,8 @@ const createProduct = async (req, res) => {
     status: status || "active",
     category,
     image: imgUrl ? imgUrl.secure_url : undefined,
+    badge: badge || "",
+    tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
   });
 
   await createNewProduct
@@ -130,6 +134,8 @@ const updateProduct = async (req, res) => {
     stock,
     status,
     category,
+    tags,
+    badge,
   } = req.body || {};
 
   try {
@@ -168,6 +174,8 @@ const updateProduct = async (req, res) => {
       stock: stock != null ? stock : undefined,
       status: status || undefined,
       category,
+      tags: tags ? tags.split(",").map((tag) => tag.trim()) : [],
+      badge: badge || "",
     };
 
     // if a new image was uploaded, upload it to cloudinary and include in updateData
@@ -185,7 +193,6 @@ const updateProduct = async (req, res) => {
         message: "Product Not Found",
       });
     }
-
     res.status(200).json({
       message: "Product Updated Successfully",
       product,
