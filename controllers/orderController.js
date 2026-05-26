@@ -251,3 +251,9 @@ async function updateOrderStatusController(req, res) {
     data: order,
   });
 }
+module.exports = {
+  createOrderController,
+  getMyOrdersController,
+  getAllOrdersController,
+  updateOrderStatusController,
+};
