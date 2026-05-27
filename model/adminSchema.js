@@ -3,7 +3,7 @@ const { Admin } = require("mongodb");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const customerSchema = new Schema({
+const adminSchema = new Schema({
   firstName: {
     type: String,
     required: true,
@@ -32,12 +32,12 @@ const customerSchema = new Schema({
   },
   status: {
     type: String,
-    default: "new",
+    default: "active",
     enum: ["new", "active", "inactive", "blocked"],
   },
   role: {
     type: String,
-    default: "user",
+    default: "admin",
     enum: ["user", "admin"],
   },
   joinedAt: {
@@ -46,4 +46,4 @@ const customerSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model("customerList", customerSchema);
+module.exports = mongoose.model("adminList", adminSchema);
