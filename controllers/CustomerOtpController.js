@@ -1,11 +1,11 @@
 const emailVerification = require("../helpers/emailVerification");
-const userSchema = require("../model/userSchema");
+const customerSchema = require("../model/customerSchema");
 const crypto = require("crypto");
 
 // ====================== FirstOtpController Part Start Here =================
 const FirstOtpController = async (req, res) => {
   const { email, otp } = req.body;
-  const user = await userSchema.findOne({ email });
+  const user = await customerSchema.findOne({ email });
   if (!user) {
     return res.status(400).json({
       message: "User Not Found",
@@ -32,7 +32,7 @@ const FirstOtpController = async (req, res) => {
 //================= userController Part Start Here =================
 const ResendOtpController = async (req, res) => {
   const { email } = req.body;
-  const user = await userSchema.findOne({ email });
+  const user = await customerSchema.findOne({ email });
   // Check if user exists
   if (!user) {
     return res.status(400).json({ message: "Error: User Not Found" });

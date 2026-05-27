@@ -1,5 +1,5 @@
 const express = require("express");
-const userSchema = require("../model/userSchema");
+const customerSchema = require("../model/customerSchema");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
@@ -36,14 +36,14 @@ const signupController = async (req, res) => {
   }
   //  Duplicate Email Check Start
   // -------------First Way--------------
-  const duplicateEmail = await userSchema.findOne({ email });
+  const duplicateEmail = await customerSchema.findOne({ email });
   if (duplicateEmail) {
     return res.json({
       message: "Error: Email Already Exists",
     });
   }
   // -----------------Second Way ------------
-  // const duplicateEmail = await userSchema.find({ email });
+  // const duplicateEmail = await customerSchema.find({ email });
   // if (duplicateEmail.length > 0) {
   //   return res.json({
   //     message: "Error: This Email Already Exists",
@@ -75,7 +75,7 @@ const signupController = async (req, res) => {
 
   //bcript for hash password
   bcrypt.hash(password, 10, function (err, hash) {
-    const users = new userSchema({
+    const users = new customerSchema({
       firstName,
       lastName,
       email,
@@ -109,7 +109,7 @@ const loginController = async (req, res) => {
     return res.json({ message: "Error: Invalid Email Format" });
   }
   // Find user
-  const existingUser = await userSchema.findOne({ email });
+  const existingUser = await customerSchema.findOne({ email });
   if (!existingUser) {
     return res.json({ message: "Error: User Not Found" });
   }
@@ -154,7 +154,7 @@ const logoutController = (req, res) => {
 // ===================== Get All User Controller Start ==================
 const GetAllUserController = async (req, res) => {
   try {
-    const users = await userSchema.find();
+    const users = await customerSchema.find();
     return res.json({ message: "Users retrieved successfully", users });
   } catch (error) {
     return res.json({
@@ -174,7 +174,7 @@ const EditUserController = async (req, res) => {
       return res.json({ message: "Error: Email Required" });
     }
 
-    const updatedUser = await userSchema.findOneAndUpdate(
+    const updatedUser = await customerSchema.findOneAndUpdate(
       { email },
       { firstName, lastName, status },
       { new: true },
@@ -201,7 +201,7 @@ const DeleteSingleUserController = async (req, res) => {
   if (!email) {
     return res.json({ message: "Error: Email Required" });
   }
-  const deletedUser = await userSchema.findOneAndDelete({ email });
+  const deletedUser = await customerSchema.findOneAndDelete({ email });
   if (!deletedUser) {
     return res.json({ message: "Error: User Not Found" });
   }
@@ -212,7 +212,7 @@ const DeleteSingleUserController = async (req, res) => {
 // ===================== Delete All User Controller Start ==================
 const DeleteAllUserController = async (req, res) => {
   try {
-    await userSchema.deleteMany({});
+    await customerSchema.deleteMany({});
     return res.json({ message: "All Users Deleted Successfully" });
   } catch (error) {
     return res.json({
@@ -245,7 +245,7 @@ const AddNewUserController = async (req, res) => {
     }
 
     // Check for Duplicate Email
-    const duplicateEmail = await userSchema.findOne({ email });
+    const duplicateEmail = await customerSchema.findOne({ email });
     if (duplicateEmail) {
       return res.json({ message: "Error: Email Already Exists" });
     }
@@ -253,7 +253,7 @@ const AddNewUserController = async (req, res) => {
     // Hash password
     const hash = await bcrypt.hash(password, 10);
 
-    const newUser = new userSchema({
+    const newUser = new customerSchema({
       firstName,
       lastName,
       email,

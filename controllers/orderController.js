@@ -1,6 +1,6 @@
 const orderSchema = require("../model/orderSchema");
 const couponSchema = require("../model/couponSchema");
-const userSchema = require("../model/userSchema");
+const customerSchema = require("../model/customerSchema");
 const { normalizeText, normalizeCode, computeDiscount } = require("../utils");
 
 async function createOrderController(req, res) {
@@ -16,7 +16,7 @@ async function createOrderController(req, res) {
     });
   }
 
-  const customer = await userSchema
+  const customer = await customerSchema
     .findById(customerId)
     .select("firstName lastName email");
   if (!customer) {
