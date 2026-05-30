@@ -3,6 +3,7 @@ const couponSchema = require("../model/couponSchema");
 const customerSchema = require("../model/customerSchema");
 const { normalizeText, normalizeCode, computeDiscount } = require("../utils");
 
+// Create a new order
 async function createOrderController(req, res) {
   let initialCustomerId = req.customer?.id || req.session?.userSchema?.id;
   const customerEmail = req.session?.userSchema?.email;
@@ -201,7 +202,7 @@ async function createOrderController(req, res) {
     data: order,
   });
 }
-
+// Get orders of the logged-in customer
 async function getMyOrdersController(req, res) {
   let initialCustomerId = req.customer?.id || req.session?.userSchema?.id;
   const customerEmail = req.session?.userSchema?.email;
@@ -237,7 +238,7 @@ async function getMyOrdersController(req, res) {
     data: orders,
   });
 }
-
+// Get all orders (admin)
 async function getAllOrdersController(req, res) {
   try {
     const orders = await orderSchema.find({}).sort({ createdAt: -1 });
@@ -264,6 +265,7 @@ const ALLOWED_ORDER_STATUSES = [
   "cancelled",
 ];
 
+// Update order details (admin)
 function parseCustomerName(customerName) {
   const parts = normalizeText(customerName).split(/\s+/).filter(Boolean);
   if (parts.length === 0) return null;
@@ -310,7 +312,7 @@ function applyQuantityToItems(items, targetQuantity) {
     assigned += share;
   });
 }
-
+// Only Admin Can Update Order Status And Details
 async function updateOrderController(req, res) {
   try {
     const { id } = req.params;
