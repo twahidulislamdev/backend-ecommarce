@@ -4,12 +4,12 @@ const {
   createOrderController,
   getMyOrdersController,
   getAllOrdersController,
-  updateOrderStatusController,
-} = require("../controllers/orderController");
+  updateOrderController,
+} = require("../../controllers/orderController");
 
 router.post("/", createOrderController);
 router.get("/myorders", getMyOrdersController);
 router.get("/", getAllOrdersController);
-router.put("/:id", updateOrderStatusController);
+router.put("/:id", updateOrderController);
 
 module.exports = router;

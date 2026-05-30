@@ -4,27 +4,35 @@ const customerSchema = require("../model/customerSchema");
 const { normalizeText, normalizeCode, computeDiscount } = require("../utils");
 
 async function createOrderController(req, res) {
-  const customerId = req.customer?.id || req.session?.userSchema?.id;
+  let initialCustomerId = req.customer?.id || req.session?.userSchema?.id;
+  const customerEmail = req.session?.userSchema?.email;
   const items = Array.isArray(req.body?.items) ? req.body.items : [];
   const shippingPayload = req.body?.shipping || {};
   const couponCode = normalizeCode(req.body?.couponCode);
 
-  if (!customerId) {
+  if (!initialCustomerId && !customerEmail) {
     return res.status(401).json({
       success: false,
       message: "Customer login required",
     });
   }
 
-  const customer = await customerSchema
-    .findById(customerId)
-    .select("firstName lastName email");
+  let customer = null;
+  if (initialCustomerId) {
+    customer = await customerSchema.findById(initialCustomerId).select("firstName lastName email _id");
+  }
+  if (!customer && customerEmail) {
+    customer = await customerSchema.findOne({ email: customerEmail }).select("firstName lastName email _id");
+  }
+
   if (!customer) {
     return res.status(401).json({
       success: false,
       message: "Customer account not found",
     });
   }
+  
+  const customerId = customer._id;
 
   if (items.length === 0) {
     return res.status(400).json({
@@ -159,24 +167,33 @@ async function createOrderController(req, res) {
     Number((subTotal + shippingFee - discountAmount).toFixed(2)),
   );
 
-  const order = await orderSchema.create({
-    userId: customerId,
-    customer: {
-      firstName: customer.firstName,
-      lastName: customer.lastName,
-      email: customer.email,
-    },
-    items: normalizedItems,
-    shipping,
-    subTotal,
-    shippingFee,
-    grandTotal,
-    coupon: {
-      code: appliedCode,
-      discountAmount,
-      type: couponType,
-    },
-  });
+  let order;
+  try {
+    order = await orderSchema.create({
+      userId: customerId,
+      customer: {
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email,
+      },
+      items: normalizedItems,
+      shipping,
+      subTotal,
+      shippingFee,
+      grandTotal,
+      coupon: {
+        code: appliedCode,
+        discountAmount,
+        type: couponType,
+      },
+    });
+  } catch (err) {
+    console.error("Order creation failed:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to place order",
+    });
+  }
 
   return res.status(201).json({
     success: true,
@@ -186,11 +203,29 @@ async function createOrderController(req, res) {
 }
 
 async function getMyOrdersController(req, res) {
-  const customerId = req.customer?.id || req.session?.customerUser?.id;
-  if (!customerId) {
+  let initialCustomerId = req.customer?.id || req.session?.userSchema?.id;
+  const customerEmail = req.session?.userSchema?.email;
+
+  if (!initialCustomerId && !customerEmail) {
     return res.status(401).json({
       success: false,
       message: "Customer login required",
+    });
+  }
+
+  let customerId = initialCustomerId;
+  
+  if (!customerId && customerEmail) {
+    const customer = await customerSchema.findOne({ email: customerEmail }).select("_id");
+    if (customer) {
+      customerId = customer._id;
+    }
+  }
+
+  if (!customerId) {
+    return res.status(401).json({
+      success: false,
+      message: "Customer account not found",
     });
   }
 
@@ -204,56 +239,148 @@ async function getMyOrdersController(req, res) {
 }
 
 async function getAllOrdersController(req, res) {
-  const orders = await orderSchema
-    .find({})
-    .populate("userId", "firstName lastName email role")
-    .sort({ createdAt: -1 });
+  try {
+    const orders = await orderSchema.find({}).sort({ createdAt: -1 });
 
-  return res.status(200).json({
-    success: true,
-    data: orders,
+    return res.status(200).json({
+      success: true,
+      data: orders,
+    });
+  } catch (err) {
+    console.error("Failed to fetch orders:", err);
+    return res.status(500).json({
+      success: false,
+      message: err.message || "Failed to fetch orders",
+    });
+  }
+}
+
+const ALLOWED_ORDER_STATUSES = [
+  "pending",
+  "paid",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+];
+
+function parseCustomerName(customerName) {
+  const parts = normalizeText(customerName).split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return null;
+  return {
+    firstName: parts[0],
+    lastName: parts.slice(1).join(" "),
+  };
+}
+
+function recalculateOrderTotals(order) {
+  const subTotal = order.items.reduce(
+    (total, item) => total + Number(item.price) * Number(item.quantity),
+    0,
+  );
+  const discount = Number(order.coupon?.discountAmount) || 0;
+  const shippingFee = Number(order.shippingFee) || 0;
+  order.subTotal = subTotal;
+  order.grandTotal = Math.max(0, subTotal + shippingFee - discount);
+}
+
+function applyQuantityToItems(items, targetQuantity) {
+  const quantity = Math.max(1, Math.floor(Number(targetQuantity)));
+  if (!Number.isFinite(quantity) || items.length === 0) return;
+
+  if (items.length === 1) {
+    items[0].quantity = quantity;
+    return;
+  }
+
+  const currentTotal = items.reduce((sum, item) => sum + Number(item.quantity), 0);
+  if (currentTotal <= 0) {
+    items[0].quantity = quantity;
+    return;
+  }
+
+  let assigned = 0;
+  items.forEach((item, index) => {
+    if (index === items.length - 1) {
+      item.quantity = Math.max(1, quantity - assigned);
+      return;
+    }
+    const share = Math.max(1, Math.round((Number(item.quantity) / currentTotal) * quantity));
+    item.quantity = share;
+    assigned += share;
   });
 }
 
-async function updateOrderStatusController(req, res) {
-  const { id } = req.params;
-  const nextStatus = normalizeText(req.body?.status).toLowerCase();
-  const allowedStatuses = [
-    "pending",
-    "paid",
-    "processing",
-    "shipped",
-    "delivered",
-    "cancelled",
-  ];
+async function updateOrderController(req, res) {
+  try {
+    const { id } = req.params;
+    const order = await orderSchema.findById(id);
 
-  if (!allowedStatuses.includes(nextStatus)) {
-    return res.status(400).json({
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    const status = normalizeText(req.body?.status).toLowerCase();
+    if (status) {
+      if (!ALLOWED_ORDER_STATUSES.includes(status)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid order status",
+        });
+      }
+      order.status = status;
+    }
+
+    const parsedCustomer = parseCustomerName(req.body?.customer);
+    if (parsedCustomer) {
+      order.customer.firstName = parsedCustomer.firstName;
+      order.customer.lastName = parsedCustomer.lastName;
+      if (order.shipping?.fullName) {
+        order.shipping.fullName = `${parsedCustomer.firstName} ${parsedCustomer.lastName}`.trim();
+      }
+    }
+
+    const productTitle = normalizeText(req.body?.product);
+    if (productTitle && order.items.length === 1) {
+      order.items[0].title = productTitle;
+    }
+
+    if (req.body?.quantity != null) {
+      applyQuantityToItems(order.items, req.body.quantity);
+      recalculateOrderTotals(order);
+    }
+
+    const manualTotal = Number(req.body?.total);
+    if (Number.isFinite(manualTotal) && manualTotal >= 0) {
+      order.grandTotal = manualTotal;
+    } else if (req.body?.quantity != null) {
+      recalculateOrderTotals(order);
+    }
+
+    order.markModified("items");
+    order.markModified("customer");
+    await order.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Order updated successfully",
+      data: order,
+    });
+  } catch (err) {
+    console.error("Order update failed:", err);
+    return res.status(500).json({
       success: false,
-      message: "Invalid order status",
+      message: err.message || "Failed to update order",
     });
   }
-
-  const order = await orderSchema.findById(id);
-  if (!order) {
-    return res.status(404).json({
-      success: false,
-      message: "Order not found",
-    });
-  }
-
-  order.status = nextStatus;
-  await order.save();
-
-  return res.status(200).json({
-    success: true,
-    message: "Order status updated successfully",
-    data: order,
-  });
 }
+
 module.exports = {
   createOrderController,
   getMyOrdersController,
   getAllOrdersController,
-  updateOrderStatusController,
+  updateOrderController,
 };

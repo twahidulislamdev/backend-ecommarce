@@ -128,12 +128,12 @@ const loginController = async (req, res) => {
   req.session.userSchema = {
     firstName: existingUser.firstName,
     lastName: existingUser.lastName,
-    id: existingUser.id,
+    id: existingUser._id,
     email: existingUser.email,
   };
   return res.json({
     message: "Login in Successfully",
-    // user: req.session.userSchema,
+    user: req.session.userSchema,
   });
 };
 /* ======================= LOGIN CONTROLLER End ======================= */

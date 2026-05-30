@@ -4,8 +4,8 @@ const { Schema } = mongoose;
 const orderItemSchema = new Schema(
   {
     productId: {
-      type: Schema.Types.ObjectId,
-      ref: "Product",
+      type: Schema.Types.Mixed,
+      default: null,
     },
     title: {
       type: String,
@@ -34,7 +34,7 @@ const orderSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "CustomerUser",
+      ref: "customerList",
       required: true,
     },
     customer: {
@@ -77,8 +77,8 @@ const orderSchema = new Schema(
     status: {
       type: String,
       enum: [
-        "pending",
         "paid",
+        "pending",
         "processing",
         "shipped",
         "delivered",
