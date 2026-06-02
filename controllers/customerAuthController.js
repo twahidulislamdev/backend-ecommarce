@@ -292,7 +292,7 @@ const CurrentUserController = (req, res) => {
       user: req.session.userSchema,
     });
   }
-  return res.json({ message: "Access Denied" });
+  return res.status(401).json({ message: "Access Denied" });
 };
 /* ======================= CURRENT USER CONTROLLER End ======================= */
 
