@@ -21,7 +21,6 @@ const allowedOrigins = [
 if (process.env.CLIENT_URL) {
   allowedOrigins.push(process.env.CLIENT_URL);
 }
-
 app.set("trust proxy", 1);
 
 app.use(

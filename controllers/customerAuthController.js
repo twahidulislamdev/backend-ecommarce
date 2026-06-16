@@ -31,7 +31,7 @@ const signupController = async (req, res) => {
   }
   if (!emailValidation(email)) {
     return res.json({
-      message: "Error: Email format is not Correct",
+      message: "Error: Email Format Is Not Correct",
     });
   }
   //  Duplicate Email Check Start
